@@ -1,0 +1,101 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and subscription data",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "subscription": {
+          "type": "object",
+          "properties": {
+            "plan": { "type": "string", "enum": ["free", "1day", "7days", "30days", "180days"] },
+            "expiresAt": { "type": "string", "format": "date-time" },
+            "tryonsRemaining": { "type": "integer" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "CartItem": {
+      "title": "CartItem",
+      "description": "Item in user's shopping cart",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "productId": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "image": { "type": "string" },
+        "quantity": { "type": "integer" },
+        "addedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "productId", "name", "price"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "User's order history",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "items": { "type": "array", "items": { "$ref": "CartItem" } },
+        "total": { "type": "number" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "items", "total", "status"]
+    },
+    "TryOn": {
+      "title": "TryOn",
+      "description": "Record of a virtual try-on",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userImage": { "type": "string" },
+        "dressImage": { "type": "string" },
+        "resultImage": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "userImage", "dressImage", "resultImage"]
+    },
+    "Sketch": {
+      "title": "Sketch",
+      "description": "User's fashion sketch design",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "baseDressId": { "type": "string" },
+        "sketchData": { "type": "string" },
+        "aiResultImage": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "sketchData"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/users/{userId}/cart/{itemId}": {
+      "schema": "CartItem",
+      "description": "User shopping carts"
+    },
+    "/users/{userId}/orders/{orderId}": {
+      "schema": "Order",
+      "description": "User order history"
+    },
+    "/users/{userId}/tryons/{tryonId}": {
+      "schema": "TryOn",
+      "description": "User try-on history"
+    },
+    "/users/{userId}/sketches/{sketchId}": {
+      "schema": "Sketch",
+      "description": "User fashion sketches"
+    }
+  }
+}
