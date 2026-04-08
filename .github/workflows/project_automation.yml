@@ -1,0 +1,26 @@
+name: Project Automation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  project_automation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Project Columns
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const columns = ['Backlog', 'Ready', 'In Progress', 'In Review', 'Done'];
+            const { Octokit } = require('@octokit/rest');
+            const octokit = new Octokit({ auth: `\${process.env.GITHUB_TOKEN}` });
+            const project_id = 'YOUR_PROJECT_ID'; // Update this with your actual project ID
+            
+            for (const column of columns) {
+              await octokit.projects.createColumn({
+                project_id,
+                name: column
+              });
+            }
+      - name: Complete Setup
+        run: echo 'Project Columns Created Successfully!'  
