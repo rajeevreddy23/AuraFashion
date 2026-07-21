@@ -3,21 +3,45 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { MEN_PRODUCTS, WOMEN_PRODUCTS } from '../constants';
 import { Product } from '../types';
-import { Star, ShoppingCart, Sparkles, ArrowLeft, ShieldCheck, Truck, RefreshCcw } from 'lucide-react';
+import { Star, ShoppingCart, Sparkles, ArrowLeft, ShieldCheck, Truck, RefreshCcw, Loader2 } from 'lucide-react';
 import { auth, db } from '../firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [adding, setAdding] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const allProducts = [...MEN_PRODUCTS, ...WOMEN_PRODUCTS];
-    const found = allProducts.find(p => p.id === id);
-    if (found) setProduct(found);
+    fetchProduct();
   }, [id]);
+
+  const fetchProduct = async () => {
+    if (!id) return;
+    setLoading(true);
+    try {
+      // Try Firestore first
+      const productSnap = await getDoc(doc(db, 'products', id));
+      if (productSnap.exists()) {
+        setProduct({ ...productSnap.data() } as Product);
+      } else {
+        // Fallback to constants
+        const allProducts = [...MEN_PRODUCTS, ...WOMEN_PRODUCTS];
+        const found = allProducts.find(p => p.id === id);
+        if (found) setProduct(found);
+      }
+    } catch (err) {
+      console.error("Error fetching product:", err);
+      // Fallback on error
+      const allProducts = [...MEN_PRODUCTS, ...WOMEN_PRODUCTS];
+      const found = allProducts.find(p => p.id === id);
+      if (found) setProduct(found);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const addToCart = async () => {
     if (!auth.currentUser || !product) {
@@ -42,7 +66,13 @@ export default function ProductDetailPage() {
     }
   };
 
-  if (!product) return null;
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin text-black" /></div>;
+  if (!product) return (
+    <div className="text-center py-20">
+      <h2 className="text-2xl font-black">Product Not Found</h2>
+      <button onClick={() => navigate('/shopping')} className="mt-4 text-gray-500 font-bold hover:text-black">Back to Shopping</button>
+    </div>
+  );
 
   return (
     <div className="space-y-8">

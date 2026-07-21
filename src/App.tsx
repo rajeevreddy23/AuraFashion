@@ -16,6 +16,8 @@ import SubscriptionPage from './pages/Subscription';
 import CartPage from './pages/Cart';
 import LoginPage from './pages/Login';
 import ProductDetailPage from './pages/ProductDetail';
+import ProfilePage from './pages/Profile';
+import AdminPage from './pages/Admin';
 
 const Layout: React.FC<{ children: React.ReactNode; user: User | null }> = ({ children, user }) => {
   const navigate = useNavigate();
@@ -28,6 +30,7 @@ const Layout: React.FC<{ children: React.ReactNode; user: User | null }> = ({ ch
     { id: 'sketch', icon: Palette, label: 'Sketch', path: '/sketch' },
     { id: 'subscription', icon: CreditCard, label: 'Plans', path: '/subscription' },
     { id: 'cart', icon: ShoppingCart, label: 'Cart', path: '/cart' },
+    { id: 'profile', icon: UserCircle, label: 'Profile', path: '/profile' },
   ];
 
   return (
@@ -41,7 +44,10 @@ const Layout: React.FC<{ children: React.ReactNode; user: User | null }> = ({ ch
         <div className="flex items-center gap-2 sm:gap-4">
           {user ? (
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
+              <div 
+                className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => navigate('/profile')}
+              >
                 <span className="text-xs font-medium text-gray-600 hidden sm:block">{user.displayName || user.email}</span>
                 <img src={user.photoURL || `https://ui-avatars.com/api/?name=${user.email}`} className="w-8 h-8 rounded-full border border-gray-200" alt="Profile" />
               </div>
@@ -179,6 +185,8 @@ export default function App() {
           <Route path="/subscription" element={<SubscriptionPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </Layout>
     </Router>
